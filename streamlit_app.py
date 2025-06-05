@@ -11,10 +11,14 @@ ICONS = ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🙂", "🙃",
 
 @st.cache_resource
 def load_models():
+    token = os.getenv("PYANNOTE_TOKEN")
+    if not token:
+        st.warning("PYANNOTE_TOKEN is not set")
+        st.stop()
     whisper_model = whisper.load_model("base")
     diarization_pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization@2.1",
-        use_auth_token=os.getenv("PYANNOTE_TOKEN")
+        use_auth_token=token,
     )
     return whisper_model, diarization_pipeline
 
@@ -66,4 +70,5 @@ if uploaded_file is not None:
 
     st.download_button("Download TXT", txt_content, file_name="transcript.txt")
     st.download_button("Download MD", md_content, file_name="transcript.md")
+    os.remove(tmp_path)
 
